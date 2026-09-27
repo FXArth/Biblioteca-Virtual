@@ -241,7 +241,8 @@ class Sistema:
                     confirmacao = input("(S/N): ").strip().upper()
                     if confirmacao == "S":
                         cursor.execute(
-                            "UPDATE biblioteca SET status = 'Disponível' WHERE nome LIKE ?",(livro_devolucao,)
+                            "UPDATE biblioteca SET status = 'Disponível' WHERE nome LIKE ?",
+                            (livro_devolucao,),
                         )
                         conexao.commit()
                         print(
