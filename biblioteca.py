@@ -28,6 +28,13 @@
     - Cargo/Nível de acesso
     - Email
     - Senha
+
+        # id = ""                                         #identificação para rastreamento
+        # nome = ""                                       #nome do livro
+        # tipo = ""                                       #artigo, livro ou documentário
+        # autor = ""                                      #nome do autor no livro
+        # status = ""                                     #disponível ou ou indisponível para aluguel
+        # ano_de_publicacao = ""                          #ano de publicação do conteúdo
 """
 
 from datetime import date
@@ -47,21 +54,32 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS biblioteca (
                 )""")
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS historico (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                livros_alugados TEXT NOT NULL,
-                tempo_de_aluguel INTEGER,
-                reputação TEXT NOT NULL
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    nome TEXT NOT NULL,
+                    livros_alugados TEXT,
+                    tempo_de_aluguel INTEGER,
+                    reputação TEXT NOT NULL
+                )""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS leitores (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+                    nome TEXT NOT NULL,
+                    cpf TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    senha TEXT NOT NULL
+                )""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS administradores (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    cargo TEXT NOT NULL,
+                    nome TEXT NOT NULL,
+                    cpf TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    senha TEXT NOT NULL
                 )""")
 
 
 class Material:
-    # id = ""                                         #identificação para rastreamento
-    # nome = ""                                       #nome do livro
-    # tipo = ""                                       #artigo, livro ou documentário
-    # autor = ""                                      #nome do autor no livro
-    # status = ""                                     #disponível ou ou indisponível para aluguel
-    # ano_de_publicacao = ""                          #ano de publicação do conteúdo
 
     def __init__(self, nome, autor, ano_de_publicacao, status):
         self.nome = nome
@@ -72,84 +90,110 @@ class Material:
 
 class Usuario:
 
-    def __init__(self, login):
+    def __init__(self, user, senha):
+        self.login = user + senha
 
-        self.login = login
-        self.sistema = Sistema()
-        self.acesso_usuario(login)
 
-    def acesso_usuario(self, login):
+class Administrador:
+
+    def __init__(self, user, senha):
+        self.login = user + senha
+
+
+class TelaInicial:
+    def apresentacao(self):
+        print("-" * 40)
+        print("Bem-vindo ao Sistema Bibliotecário!")
+        print("1 - Fazer Login")
+        print("2 - Cadastrar Leitor")
+
+        opcao = input("\nEscolha uma opção: ")
+
+        if opcao == "1":
+            self.fazer_login()
+        elif opcao == "2":
+            self.cadastrar_leitor()
+
+    def cadastrar_leitor(self):
+
+        print("-" * 40)
+        print(
+            "--Cadastro--\n\nPor Gentileza! Insira as informações solicitadas à seguir!"
+        )
+        nome = input("Me diga seu nome: ")
+        cpf = input("Qual seu CPF?: ")
+        email = input("Para contato, nos diga seu email: ")
+        senha = input("Crie agora, sua senha: ")
+
+        cursor.execute(
+            """
+            INSERT INTO leitores (nome, cpf, email, senha) VALUES (?, ?, ?, ?)""",
+            (nome.title().strip(), cpf.upper().strip(), email.lower().strip(), senha),
+        )
+
+        conexao.commit()
+        print("Seu cadastro foi realizado!")
+        pass  # Aqui faremos a lógica do cadastro
+
+    def fazer_login(self):
+        print("-" * 40)
+        print(
+            "--Login--\n\nBom te ver de novo! Insira as informações solicitadas à seguir!"
+        )
+
+        nome = input("Nome: ")
+        senha = input("Senha: ")
+
+        cursor.execute(
+            "SELECT * FROM leitores WHERE nome = ? AND senha = ?",
+            (nome.title().strip(), senha),
+        )
+
+        resultado = cursor.fetchone()
+
+        if resultado:
+            print("\nLogin realizado! Bem-vindo de volta.")
+            
+            # 1. Criamos a "Entidade" do usuário logado
+            usuario_logado = Usuario(nome.title().strip(), senha)
+            
+            # 2. Ligamos o motor do Sistema e abrimos a porta para esse usuário
+            sistema = Sistema()
+            sistema.menu_usuario(usuario_logado)
+            
+        else:
+            print("\nNome ou senha incorretos! Tente novamente.")
+
+
+class Sistema:
+
+    def menu_usuario(self, usuario):
         try:
             print("-" * 40)
             print("--Biblioteca virtual iniciada--")
-            print(f"\nOlá {login}! Seja bem vindo!")
+            print(f"\nOlá {usuario.login}! Seja bem vindo!")
             print("O que deseja?")
             print("""1 - Encontrar Material
 2 - Devolver Material
 3 - Histórico
 4 - Sair""")
 
-            usuario = int(input("Selecione apenas o número da opção desejada: "))
+            acao = int(input("Selecione apenas o número da opção desejada: "))
 
-            if usuario == 0:
-                Administrador(login)
-            elif usuario == 1:
-                self.sistema.busca()
-            elif usuario == 2:
-                self.sistema.devolucao()
-            elif usuario == 3:
-                Historico(login)
-            elif usuario == 4:
+            if acao == 0:
+                # Vamos ajustar isso depois para chamar o menu do admin corretamente
+                print("Área do administrador em construção! Volte em breve.")
+            elif acao == 1:
+                self.busca()
+            elif acao == 2:
+                self.devolucao()
+            elif acao == 3:
+                Historico(usuario)
+            elif acao == 4:
                 print("Saindo...")
 
-        except ValueError as error:
+        except Exception as error:
             print(f"Erro ocorrido: {error}")
-
-
-class Administrador:
-
-    def __init__(self, login):
-        self.login = login
-        self.sistema_adm = SistemaAdministrador()
-        self.acesso_adm(login)
-
-    def acesso_adm(self, login):
-
-        senhas = {1206: "admin1", 458: "admin2", 916: "admin3"}
-        senha = int(
-            input(
-                "Você está tentando acessar o sistema de administração. Coloque sua senha de 4 dígitos: "
-            )
-        )
-
-        if senha in senhas:
-            login = senhas[senha]
-            print("Acesso concedido")
-        else:
-            print("Acesso Negado")
-            return
-
-        print("-" * 40)
-        print("--Biblioteca virtual iniciada--")
-        print(f"\nOlá {login}! Seja bem vindo ao ambiente de administração!")
-        print("O que deseja?")
-        print("""1 - Postar Material
-2 - Deletar Material
-3 - Encontrar Material
-4 - Sair""")
-
-        administrador = int(input("Selecione a opção desejada: "))
-        if administrador == 1:
-            self.sistema_adm.adicionar_material()
-        elif administrador == 2:
-            self.sistema_adm.deletar_material()
-        elif administrador == 3:
-            self.sistema_adm.busca()
-        elif administrador == 4:
-            print("Saindo...")
-
-
-class Sistema:
 
     def busca(self):
 
@@ -266,6 +310,41 @@ class Sistema:
 
 class SistemaAdministrador(Sistema):
 
+    def menu_adm(self, login):
+
+        senhas = {1206: "admin1", 458: "admin2", 916: "admin3"}
+        senha = int(
+            input(
+                "Você está tentando acessar o sistema de administração. Coloque sua senha de 4 dígitos: "
+            )
+        )
+
+        if senha in senhas:
+            login = senhas[senha]
+            print("Acesso concedido")
+        else:
+            print("Acesso Negado")
+            return
+
+        print("-" * 40)
+        print("--Biblioteca virtual iniciada--")
+        print(f"\nOlá {login}! Seja bem vindo ao ambiente de administração!")
+        print("O que deseja?")
+        print("""1 - Postar Material
+    2 - Deletar Material
+    3 - Encontrar Material
+    4 - Sair""")
+
+        administrador = int(input("Selecione a opção desejada: "))
+        if administrador == 1:
+            self.adicionar_material()
+        elif administrador == 2:
+            self.deletar_material()
+        elif administrador == 3:
+            self.busca()
+        elif administrador == 4:
+            print("Saindo...")
+
     def adicionar_material(self):
 
         try:
@@ -347,4 +426,5 @@ class Historico:
         print(cursor.fetchall())
 
 
-pessoa1 = Usuario("Arthur")
+app = TelaInicial()
+app.apresentacao()
