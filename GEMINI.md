@@ -136,6 +136,10 @@ Regras:
 - A atualização sob demanda de um projeto específico (fora do fluxo de
   bom dia/boa noite) está detalhada na skill `project-sync`, ativada apenas
   por comando explícito do usuário.
+- O versionamento Git (add/commit/push) está detalhado na skill
+  `git-versioning`: cada comando exige aprovação individual do usuário, nunca
+  roda em lote, e a mensagem de commit segue a mesma verificação obrigatória
+  da `project-sync`.
 
 ## 11. Decisões fora de código
 

@@ -1,9 +1,11 @@
 # Skill: Versionamento (Git)
 
 ## Objetivo
-Preparar e executar o versionamento (`git add`, `git commit`, `git push`) do
-que foi feito na sessão, usando a ferramenta de terminal nativa do agente —
-nunca um script customizado — e sempre com aprovação explícita e individual
+Preparar e executar o versionamento (`git add`, `git commit`, `git push`) de
+**tudo que estiver modificado no repositório** — feito nesta sessão, em
+sessões anteriores, editado manualmente pelo usuário, ou alterado por
+qualquer outra ferramenta — usando a ferramenta de terminal nativa do agente
+(nunca um script customizado), e sempre com aprovação explícita e individual
 de cada comando antes de rodar.
 
 ## Mecânicas Principais
@@ -27,14 +29,29 @@ está sendo mesclado. Proponha o comando (`git checkout main` + `git merge
 <branch>`), espere aprovação por comando, e só depois pergunte se a branch
 antiga deve ser apagada (`git branch -d`).
 
-### 1. Gatilho
+### 1. Escopo: o repositório inteiro, não só a conversa
+Antes de propor qualquer `git add`, rode `git status` (e `git diff --stat`
+se útil) para ver o estado real e completo do repositório — nunca monte a
+lista de arquivos a partir do que foi discutido na conversa. Isso inclui:
+- arquivos que o usuário editou manualmente, fora do chat;
+- arquivos alterados por outra ferramenta ou sessão anterior (ex: um arquivo
+  ajustado com ajuda do Claude fora do Antigravity, depois colado no
+  projeto);
+- qualquer coisa marcada como modificada/não rastreada no `git status`,
+  mesmo que não tenha sido mencionada nesta sessão.
+
+Liste pro usuário tudo que o `git status` mostrou antes do `git add`, não só
+um resumo do que "nós fizemos" — se algo da lista for inesperado pra você
+(o agente), pergunte antes de incluir; não assuma que está certo.
+
+### 2. Gatilho
 Ativa quando o usuário pedir explicitamente ("versiona isso", "commit e
 push", "sobe pro Git") ou quando a `daily-context` oferecer o versionamento
 no encerramento da sessão e o usuário confirmar que quer prosseguir. Nunca
 dispara sozinha, e nunca assume que "fim de sessão" significa "pode
 commitar".
 
-### 2. Mensagem de commit sujeita à verificação
+### 3. Mensagem de commit sujeita à verificação
 Antes de escrever a mensagem de commit, aplique a mesma trava de verificação
 da seção 3 da skill `project-sync`: nenhuma palavra como "corrige", "resolve"
 ou "implementa" pode entrar na mensagem referindo-se a algo que não foi
@@ -47,7 +64,7 @@ Use o padrão Conventional Commits (`feat`, `fix`, `docs`, `chore`,
 `refactor`) para o título, com corpo explicando o que mudou e por quê quando
 não for óbvio.
 
-### 3. Execução: um comando por vez, uma aprovação por vez
+### 4. Execução: um comando por vez, uma aprovação por vez
 - Apresente o comando exato antes de rodar (ex: mostre o texto completo de
   `git commit -m "..."` antes de executar).
 - Rode usando a ferramenta de terminal integrada do agente, não um script
@@ -58,12 +75,12 @@ não for óbvio.
   própria aprovação, mesmo que o usuário já tenha aprovado os anteriores na
   mesma sessão.
 
-### 4. Push é sempre o passo mais isolado
+### 5. Push é sempre o passo mais isolado
 Mesmo que `add` e `commit` já tenham sido aprovados, peça confirmação
 separada antes do `push` — é o ponto em que a mudança sai da sua máquina e
 vai para o repositório remoto, mais difícil de desfazer depois.
 
-### 5. Falhas são reportadas como realmente aconteceram
+### 6. Falhas são reportadas como realmente aconteceram
 Se um comando falhar (conflito, rejeição do remoto, erro de autenticação),
 mostre a saída real do terminal. Nunca diga que um comando funcionou sem ter
 visto o retorno dele confirmando isso.
