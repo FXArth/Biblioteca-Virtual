@@ -90,15 +90,20 @@ class Material:
 
 class Usuario:
 
-    def __init__(self, user):
-        self.user = user
+    def __init__(self, id, nome, cpf, email):
+        self.id = id
+        self.nome = nome
+        self.cpf = cpf
+        self.email = email
 
 
 class Administrador:
 
-    def __init__(self, user, senha):
-        self.user_admin = user
-        self._senha_admin = senha
+    def __init__(self, id, nome, cpf, email):
+        self.id = id
+        self.nome = nome
+        self.cpf = cpf
+        self.email = email
 
 
 class TelaInicial:
@@ -135,7 +140,6 @@ class TelaInicial:
         conexao.commit()
         print("Seu cadastro foi realizado!")
 
-
     def fazer_login(self):
         print("-" * 40)
         print(
@@ -156,7 +160,9 @@ class TelaInicial:
             print("\nLogin realizado! Bem-vindo de volta.")
 
             # 1. Criamos a "Entidade" do usuário logado
-            usuario_logado = resultado[1]
+            usuario_logado = Usuario(
+                resultado[0], resultado[1], resultado[2], resultado[3]
+            )
 
             # 2. Ligamos o motor do Sistema e abrimos a porta para esse usuário
             sistema = Sistema()
@@ -172,7 +178,7 @@ class Sistema:
         try:
             print("-" * 40)
             print("--Biblioteca virtual iniciada--")
-            print(f"\nOlá {usuario}! Seja bem vindo!")
+            print(f"\nOlá {usuario.nome}! Seja bem vindo!")
             print("O que deseja?\n")
             print("""1 - Encontrar Material
 2 - Devolver Material
@@ -189,7 +195,9 @@ class Sistema:
             elif acao == 2:
                 self.devolucao()
             elif acao == 3:
-                historico.procura:
+                historico = Historico(usuario.nome)
+                historico.procurar()
+
             elif acao == 4:
                 print("Saindo...")
 
@@ -311,7 +319,7 @@ class Sistema:
 
 class SistemaAdministrador(Sistema):
 
-    def menu_adm(self, user_admin, senha_admin):
+    def menu_adm(self, administrador):
 
         senhas = {1206: "admin1", 458: "admin2", 916: "admin3"}
         senha = int(
@@ -326,24 +334,28 @@ class SistemaAdministrador(Sistema):
         else:
             print("Acesso Negado")
             return
+        # return "Acesso Negado"
+        # break
 
         print("-" * 40)
         print("--Biblioteca virtual iniciada--")
-        print(f"\nOlá {user_admin}! Seja bem vindo ao ambiente de administração!")
+        print(
+            f"\nOlá {administrador.nome}! Seja bem vindo ao ambiente de administração!"
+        )
         print("O que deseja?")
         print("""1 - Postar Material
     2 - Deletar Material
     3 - Encontrar Material
     4 - Sair""")
 
-        administrador = int(input("Selecione a opção desejada: "))
-        if administrador == 1:
+        acao = int(input("Selecione a opção desejada: "))
+        if acao == 1:
             self.adicionar_material()
-        elif administrador == 2:
+        elif acao == 2:
             self.deletar_material()
-        elif administrador == 3:
+        elif acao == 3:
             self.busca()
-        elif administrador == 4:
+        elif acao == 4:
             print("Saindo...")
 
     def adicionar_material(self):
@@ -421,9 +433,12 @@ class SistemaAdministrador(Sistema):
 
 class Historico:
 
+    def __init__(self, usuario):
+        self.usuario = usuario
+
     def procurar(self):
 
-        cursor.execute("SELECT * FROM historico WHERE nome = ?", (self.user,))
+        cursor.execute("SELECT * FROM historico WHERE nome = ?", (self.usuario,))
         print(cursor.fetchall())
 
 
