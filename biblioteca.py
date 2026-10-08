@@ -116,9 +116,26 @@ class TelaInicial:
         opcao = input("\nEscolha uma opção: ")
 
         if opcao == "1":
-            self.fazer_login()
+            self.sub_menu_login()
         elif opcao == "2":
-            self.cadastrar_leitor()
+            self.sub_menu_cadastro()
+
+    def sub_menu_cadastro(self):
+        print("""--Cadastro--
+Você deseja se cadastrar como:
+
+1 - Usuário
+2 - Administrador
+""")
+        try:
+            tipo_cadastro = input()
+
+            if tipo_cadastro == "1":
+                self.cadastrar_leitor()
+            elif tipo_cadastro == "2":
+                self.cadastrar_administrador()
+        except Exception as error:
+            print(error)
 
     def cadastrar_leitor(self):
 
@@ -140,7 +157,42 @@ class TelaInicial:
         conexao.commit()
         print("Seu cadastro foi realizado!")
 
-    def fazer_login(self):
+    def cadastrar_administrador(self):
+
+        print("-" * 40)
+        print(
+            "--Cadastro--\n\nPor Gentileza! Insira as informações solicitadas à seguir!"
+        )
+        nome = input("Me diga seu nome: ")
+        cpf = input("Qual seu CPF?: ")
+        email = input("Para contato, nos diga seu email: ")
+        senha = input("Crie agora, sua senha: ")
+
+        cursor.execute(
+            """
+            INSERT INTO administradores (nome, cpf, email, senha) VALUES (?, ?, ?, ?)""",
+            (nome.title().strip(), cpf.upper().strip(), email.lower().strip(), senha),
+        )
+
+        conexao.commit()
+        print("Seu cadastro foi realizado!")
+
+    def sub_menu_login(self):
+        print("""--Login--
+    Você deseja fazer login como:
+    
+    1 - Usuário
+    2 - Administrador
+    """)
+
+        tipo_login = input()
+
+        if tipo_login == "1":
+            self.login_leitor()
+        elif tipo_login == "2":
+            self.login_administrador()
+
+    def login_leitor(self):
         print("-" * 40)
         print(
             "--Login--\n\nBom te ver de novo! Insira as informações solicitadas à seguir!"
@@ -171,6 +223,38 @@ class TelaInicial:
         else:
             print("\nNome ou senha incorretos! Tente novamente.")
 
+    def login_administrador(self):
+
+        print("-" * 40)
+        print(
+            "--Login--\n\nBom te ver de novo! Insira as informações solicitadas à seguir!"
+        )
+
+        nome = input("Nome: ")
+        senha = input("Senha: ")
+
+        cursor.execute(
+            "SELECT * FROM administradores WHERE nome = ? AND senha = ?",
+            (nome.title().strip(), senha),
+        )
+
+        resultado = cursor.fetchone()
+
+        if resultado:
+            print("\nLogin realizado! Bem-vindo de volta.")
+
+            # 1. Criamos a "Entidade" do usuário logado
+            administrador_logado = Administrador(
+                resultado[0], resultado[1], resultado[2], resultado[3]
+            )
+
+            # 2. Ligamos o motor do Sistema e abrimos a porta para esse usuário
+            sistema = SistemaAdministrador()
+            sistema.menu_adm(administrador_logado)
+
+        else:
+            print("\nNome ou senha incorretos! Tente novamente.")
+
 
 class Sistema:
 
@@ -187,10 +271,7 @@ class Sistema:
 
             acao = int(input("Selecione apenas o número da opção desejada: "))
 
-            if acao == 0:
-                # Vamos ajustar isso depois para chamar o menu do admin corretamente
-                print("Área do administrador em construção! Volte em breve.")
-            elif acao == 1:
+            if acao == 1:
                 self.busca()
             elif acao == 2:
                 self.devolucao()
@@ -320,22 +401,6 @@ class Sistema:
 class SistemaAdministrador(Sistema):
 
     def menu_adm(self, administrador):
-
-        senhas = {1206: "admin1", 458: "admin2", 916: "admin3"}
-        senha = int(
-            input(
-                "Você está tentando acessar o sistema de administração. Coloque sua senha de 4 dígitos: "
-            )
-        )
-
-        if senha in senhas:
-            login = senhas[senha]
-            print("Acesso concedido")
-        else:
-            print("Acesso Negado")
-            return
-        # return "Acesso Negado"
-        # break
 
         print("-" * 40)
         print("--Biblioteca virtual iniciada--")

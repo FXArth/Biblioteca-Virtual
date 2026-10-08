@@ -5,7 +5,8 @@ Projeto de estudo para entender Programação Orientada a Objetos em Python,
 usando um sistema bibliotecário como exemplo prático.
 
 ## Conceito atual
-Compreensão sólida de Classes vs Objetos, passagem de parâmetros no `__init__`, escopo e leitura de atributos via `self`, e a diferença entre Herança (É um) e Composição (Tem um).
+Compreensão sólida de Classes vs Objetos, escopo e composição.
+Navegação entre menus, Call Stack (Pilha de chamadas) e loops infinitos (`while True`).
 
 ## Concluído
 - Criação das tabelas de banco de dados (`leitores` e `administradores`) no SQLite.
@@ -14,13 +15,14 @@ Compreensão sólida de Classes vs Objetos, passagem de parâmetros no `__init__
 - Refatoração de POO: A classe `Usuario` agora recebe seus dados (`id`, `nome`, `cpf`, `email`) diretamente do banco via construtor, sem armazenar a senha.
 - Refatoração de POO: A classe `Historico` foi reestruturada para usar Composição em vez de Herança, recebendo o nome do dono em seu construtor e realizando buscas independentes.
 - Unificação de código: Plano de Estudos de POO totalmente concluído e as melhorias aplicadas foram unificadas (merge) na branch principal (`main`).
+- Fluxo de Administradores: Adicionados submenus na `TelaInicial` redirecionando o fluxo de login/cadastro entre leitores e administradores, instanciando `Administrador` e acessando `SistemaAdministrador()`.
 
 ## Próximo passo
-- Estruturar a lógica de Cadastro/Login para a tabela de Administradores na `TelaInicial`.
+- Envolver todos os menus em laços principais (`while True`) e aplicar tratamento de erros para que o sistema se torne contínuo.
 
 ## Pendente
-- Lógica de cadastro (INSERT) para administradores.
-- Remover o "em construção" da opção 0 e integrar o painel real da classe `SistemaAdministrador` para administradores logados.
+- Laços infinitos na TelaInicial e nos Submenus.
+- Opções lógicas de retorno (`break`) para navegar adequadamente entre os blocos sem encerrar abruptamente.
 
 ## Dificuldade atual
-- Nenhuma. Base teórica de Orientação a Objetos foi estabilizada com sucesso.
+- Nenhuma. Código segue muito bem arquitetado e pronto para a próxima evolução de interface.
